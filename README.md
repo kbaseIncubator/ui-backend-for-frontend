@@ -2,121 +2,136 @@
 
 Backend for frontend was developed to shift API calls and data wrangling within browser script to server script to aim faster loading, quicker data structure modification to fit UI development needs, and to provide reusable data structures.
 
-Each routing section shall have following sections: 
-- @app.route
-- Reference docs
-    - link to github spec or readme
-- API calls
-    - method and service
-- Data wrangling
-    - https://en.wikipedia.org/wiki/Data_wrangling
-- Response
-    - shape of response 
+Each routing section shall have following sections:
 
-## 🍔 What's in it so far? 🍱 
+- @app.route
+- Synopsis
+- Reference docs
+  - link to github spec or readme
+- API calls
+  - method and service
+- Data wrangling
+  - https://en.wikipedia.org/wikiData_wrangling
+- Response
+  - shape of response
+
+## 🍔 SO what's in it? 🍱
 
 ## @app.route('/fetchUserProfile/< userID >')
 
+### Synopsis:
+With userID of the profile, it returns the full information (which is documented as "UnspecifiedObject" in UserProfile.spec).
+
 ### Reference docs:
+
 https://github.com/kbase/user_profile/blob/master/UserProfile.spec
 
-### API calls: 
+### API calls:
+
 1. POST request to user profile rpc
 
-### Data wrangling: 
-- user profile service does not return keys that does not contain matching value. Add them on so that browser script does not require to check if it is 'undefined". 
+### Data wrangling:
 
+- user profile service does not return keys that does not contain matching value. Add them on so that browser script does not require to check if it is 'undefined".
 
-### Response: 
-  ```
-  {
-    "version": "1.1",
-    "result": [
-      [
-        {
-          "user": {
-            "username": "maruthecat",
-            "realname": "Maru The Cat"
-          },
-          "profile": {
-            "metadata": 
-              {
-                "createdBy": "userprofile_ui_service",
-                "created": "2018-12-11T22:16:45.905Z"
-              },
-            "preferences": {},
-            "userdata": 
-              {
-                "organization": "Lawrence Berkeley National Laboratory (LBNL)",
-                "department": "Dog wrangling",
-                "city": "Berkeley",
-                "state": "California",
-                "postalCode": "94720",
-                "country": "United States",
-                "affiliations": [
-                  {
-                    "title": "Cat herder",
-                    "organization": "Western Mountain Sports",
-                    "started": "1969",
-                    "ended": "Present"
-                  },
-                  {
-                    "title": "Cat nip tester",
-                    "organization": "Chillmix",
-                    "started": "1969","ended": "1973"
+### Response:
+
+```json
+{
+  "version": "1.1",
+  "result": [
+    [
+      {
+        "user": {
+          "username": "maruthecat",
+          "realname": "Maru The Cat"
+        },
+        "profile": {
+          "metadata":
+            {
+              "createdBy": "userprofile_ui_service",
+              "created": "2018-12-11T22:16:45.905Z"
+            },
+          "preferences": {},
+          "userdata":
+            {
+              "organization": "Lawrence Berkeley National Laboratory (LBNL)",
+              "department": "Dog wrangling",
+              "city": "Berkeley",
+              "state": "California",
+              "postalCode": "94720",
+              "country": "United States",
+              "affiliations": [
+                {
+                  "title": "Cat herder",
+                  "organization": "Western Mountain Sports",
+                  "started": "1969",
+                  "ended": "Present"
+                },
+                {
+                  "title": "Cat nip tester",
+                  "organization": "Chillmix",
+                  "started": "1969","ended": "1973"
+                }
+              ],
+              "researchStatement": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec non eleifend tortor. Curabitur finibus pulvinar orci, at vulputate leo. Phasellus pretium lectus non magna tempus, sed vehicula justo porttitor.",
+              "jobTitle": "Other",
+              "jobTitleOther": "Front end dev",
+              "researchInterests": [
+                "Genome Annotation","Genome Assembly","Microbial Communities","Comparative Genomics","Expression","Metabolic Modeling","Read Processing","Sequence Analysis","Utilities","Other"
+              ],
+              "fundingSource": "DOE National Nuclear Security Administration (NNSA)",
+              "gravatarDefault": "mm"},
+              "synced": {"gravatarHash": "4210d8e14db97e647b8cedc9fa3c4119"},
+              "plugins": {
+          "data-search": {
+            "settings": {
+              "history": {
+                "search": {
+                  "history": [],
+                    "time": {
+                      "$numberLong": "1546649250079"
+                    }
                   }
-                ],
-                "researchStatement": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec non eleifend tortor. Curabitur finibus pulvinar orci, at vulputate leo. Phasellus pretium lectus non magna tempus, sed vehicula justo porttitor.",
-                "jobTitle": "Other",
-                "jobTitleOther": "Front end dev",
-                "researchInterests": [
-                  "Genome Annotation","Genome Assembly","Microbial Communities","Comparative Genomics","Expression","Metabolic Modeling","Read Processing","Sequence Analysis","Utilities","Other"
-                ],
-                "fundingSource": "DOE National Nuclear Security Administration (NNSA)",
-                "gravatarDefault": "mm"},
-                "synced": {"gravatarHash": "4210d8e14db97e647b8cedc9fa3c4119"},
-                "plugins": {
-		          "data-search": {
-		            "settings": {
-		              "history": {
-		                "search": {
-		                  "history": [],
-		                    "time": {
-		                      "$numberLong": "1546649250079"
-		                    }
-		                  }
-		                }
-		              }
-		            }
-		          }
-		        }
-		      }
-		    ]
-		  ]
-		}
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  ]
+}
 ```
 
-## @app.route('/narrative_list/<param_type>/< token>' ) - calling this twice from frontend
+## @app.route('/narrative_list/< param_type >/< token >' ) - calling this twice from frontend
 
-### Refernce Docs:
-- https://kbase.us/services/ws/docs/Workspace.html#typedefWorkspace.ObjectIdentity
-- https://github.com/kbaseapps/NarrativeService/blob/master/NarrativeService.spec
+### Synopsis:
 
+With one of following parameters: mine, shared, and public, it returns narratives with narrative detail.
 
-### API calls: 
-1.  POST request to service wizard to get dynamic service URL
-2.  POST request to narrative service to get list of narratives
-3.  POST request to workspace service to get users have access to each narratives. 
-4.  REPEAT step 1 - step 3 for each users (Public & Shared/Mine & Shared) 
+### Reference Docs:
 
-### Data wrangling: 
-- Filter narratives( work space ) with "narrative_nice_name" and return the list
-- Each narrative last saved date is converted to the number of milliseconds since January 1, 1970, 00:00:00 UTC.
+-   https://kbase.us/services/ws/docs/Workspace.html#typedefWorkspace.ObjectIdentity
+-   https://github.com/kbaseapps/NarrativeService/blob/master/NarrativeService.spec
 
+### API calls:
 
-### Response: 
+1. POST request to service wizard to get dynamic service URL
+2. POST request to narrative service to get list of narratives
+3. POST request to workspace service to get users have access to each narratives.
+4. REPEAT step 1 - step 3 for each users (Public & Shared/Mine & Shared)
+
+### Data wrangling:
+
+-   Filter narratives( work space ) with "narrative_nice_name" and return the list
+-   Each narrative last saved date is converted to the number of milliseconds since January 1, 1970, 00:00:00 UTC.
+
+### Response:
+
 Array of narrative data object
-```
+
+```json
 [
   {
     "wsID": 39031,
@@ -124,7 +139,7 @@ Array of narrative data object
     "name": "Luna pughuahua sampling",
     "last_saved": 1559254557000,
     "users": {},
-    "narrative_detail": 
+    "narrative_detail":
       {
         "creator": "maruthecat",
         "data_dependencies": "[]",
@@ -139,25 +154,30 @@ Array of narrative data object
         "ws_name": "maruthecat:narrative_1547057225124"
       }
     },
- ```
+```
 
-## @app.route('/org_list/< userID >/< token >')
+## @app.route('/org_list/< profileID >/< token >')
 
-### API calls: 
+### Synopsis:
+Returns list of the orgs that both logged in user and profile user are in.
+
+### API calls:
+
 1.  GET request to group service to fetch organization that user is associated
 2.  GET request to group service to to get detailed organization information. Mainly to get list of admin, owner, and members
 3.  REPEAT step 2 as many times as the number of orgs step 1 returned.
 
-###  Data wrangling 
-- filter organization list that logged in user is associated to the ones the profile user is also associated with.
+### Data wrangling
 
+-   filter organization list that logged in user is associated to the ones the profile user is also associated with.
 
-### Response: 
-Array of org name and id 
-```
+### Response:
+
+Array of org name and id
+
+```typescript
 Org {
-        name:  string;
-        id:  string;
+      name:  string;
+      id:  string;
 }
 ```
-
