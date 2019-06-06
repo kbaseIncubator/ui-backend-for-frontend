@@ -15,7 +15,7 @@ Each routing section shall have following sections:
 
 ## 🍔 What's in it so far? 🍱 
 
-### @app.route('/fetchUserProfile/< userID >')
+## @app.route('/fetchUserProfile/< userID >')
 
 ### Reference docs:
 https://github.com/kbase/user_profile/blob/master/UserProfile.spec
