@@ -6,8 +6,6 @@ Each routing section shall have following sections:
 - @app.route
 - Reference docs
     - link to github spec or readme
-- Function
-    - function called from frontend
 - API calls
     - method and service
 - Data wrangling
@@ -21,8 +19,7 @@ Each routing section shall have following sections:
 
 ### Reference docs:
 https://github.com/kbase/user_profile/blob/master/UserProfile.spec
-###  Funcion: 
-``get_userProfile`` 
+
 ### API calls: 
 1. POST request to user profile rpc
 
