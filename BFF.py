@@ -8,9 +8,10 @@ app = Flask(__name__)
 public_narrative = []
 shared_narrative = []
 
-# get list of orgs that logged in user is associated with
-# which is determined by token
-# profile ID us the user ID of viewing profile
+"""
+Return list of orgs that logged in user and profile ID associated with
+profile ID is the user ID of viewing profile
+"""
 @app.route('/org_list/<profileID>/<token>')
 def get_org_list(profileID, token):
 
@@ -27,7 +28,6 @@ def get_org_list(profileID, token):
     # get org info for each org, and filter orgs that profile is also associated with.
     all_orgs = list(map(lambda x: get_group_info(x['id'], token), org_list))
     filtered_orgs= list(filter(lambda y: filterorgbyprofileuser(y, profileID), all_orgs))
-    print(filtered_orgs)
 
     return json.dumps(filtered_orgs)
 
@@ -157,44 +157,60 @@ def get_userPofile(userID):
         'https://ci.kbase.us/services/user_profile/rpc', data=json.dumps(userProfile_payload))
     try:
         response_json = response.json()
-        res = response_json
-        # print(res[0][0]['profile']['userdata'])
-
-        if 'affiliations' not in res['result'][0][0]['profile']['userdata']:
-            res['result'][0][0]['profile']['userdata']['affiliations'] = [{'title': '', 'organization': '', 'started': '', 'ended': ''}]
-        else: 
-            # If there is no end year entered, add ended - Present
-            for index in response_json['result'][0][0]['profile']['userdata']['affiliations']:
-                if 'ended' not in index:
-                    index['ended'] = "Present"
-
-        if 'city' not in res['result'][0][0]['profile']['userdata']:
-            res['result'][0][0]['profile']['userdata']['city'] = ''
-
-        if 'state' not in res['result'][0][0]['profile']['userdata']:
-            res['result'][0][0]['profile']['userdata']['state'] = ''
-
-        if 'postalCode' not in res['result'][0][0]['profile']['userdata']:
-            res['result'][0][0]['profile']['userdata']['postalCode'] = ''
-
-        if 'country' not in res['result'][0][0]['profile']['userdata']:
-            res['result'][0][0]['profile']['userdata']['country'] = ''
-
-        if 'researchStatement' not in res['result'][0][0]['profile']['userdata']:
-            res['result'][0][0]['profile']['userdata']['researchStatement'] = ''
-        
-        if 'fundingSource' not in res['result'][0][0]['profile']['userdata']:
-            res['result'][0][0]['profile']['userdata']['researchStatement'] = ''
-
-        if 'gravatarDefault' not in res['result'][0][0]['profile']['userdata']:
-            res['result'][0][0]['profile']['userdata']['gravatarDefault'] = 'identicon'
-
-        if 'avatarOption' not in res['result'][0][0]['profile']['userdata']:
-            res['result'][0][0]['profile']['userdata']['avatarOption'] = ''
+        res = response_json['result'][0][0]
 
     except Exception:
         print('Error during fetching user profile', res)
+    
 
+    if res['profile']['userdata'] is None:
+        res['profile']['userdata'] = {
+            'affiliations': [{'title': '', 'organization': '', 'started': '', 'ended': ''}],
+            'city': '',
+            'state': '',
+            'postalCode': '',
+            'country': '',
+            'researchStatement': '',
+            'fundingSource': '',
+            'synced': {'gravatarHash': ''},
+            'gravatarDefault': 'identicon',
+            'avatarOption': ''
+            }
+
+    else: 
+        if 'affiliations' not in res['profile']['userdata']:
+            res['profile']['userdata']['affiliations'] = [{'title': '', 'organization': '', 'started': '', 'ended': ''}]
+        else: 
+            # If there is no end year entered, add ended - Present
+            for index in res['profile']['userdata']['affiliations']:
+                if 'ended' not in index:
+                    index['ended'] = "Present"
+
+        if 'city' not in res['profile']['userdata']:
+            res['profile']['userdata']['city'] = ''
+
+        if 'state' not in res['profile']['userdata']:
+            res['profile']['userdata']['state'] = ''
+
+        if 'postalCode' not in res['profile']['userdata']:
+            res['profile']['userdata']['postalCode'] = ''
+
+        if 'country' not in res['profile']['userdata']:
+            res['profile']['userdata']['country'] = ''
+
+        if 'researchStatement' not in res['profile']['userdata']:
+            res['profile']['userdata']['researchStatement'] = ''
+        
+        if 'fundingSource' not in res['profile']['userdata']:
+            res['profile']['userdata']['fundingSource'] = ''
+
+        if 'gravatarDefault' not in res['profile']['userdata']:
+            res['profile']['userdata']['gravatarDefault'] = 'identicon'
+
+        if 'avatarOption' not in res['profile']['userdata']:
+            res['profile']['userdata']['avatarOption'] = ''
+    
+    print(res)
     return json.dumps(res)
 
 @app.after_request
