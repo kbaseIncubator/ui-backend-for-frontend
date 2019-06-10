@@ -1,19 +1,22 @@
 import os
 import requests
 import json
-from flask import Flask
+from flask import Flask, jsonify
+from flask_swagger import swagger
 import datetime
 app = Flask(__name__)
 
-public_narrative = []
-shared_narrative = []
+@app.route("/spec")
+def spec():
+    swag = swagger(app)
+    swag['info']['version'] = "1.0"
+    swag['info']['title'] = "KBase UI backend for frontend"
+    return jsonify(swag)
 
-"""
-Return list of orgs that logged in user and profile ID associated with
-profile ID is the user ID of viewing profile
-"""
 @app.route('/org_list/<profileID>/<token>')
 def get_org_list(profileID, token):
+    """Return list of orgs that logged in user and profile ID associated with
+    profile ID is the user ID of viewing profile."""
 
     groupUrl = 'https://ci.kbase.us/services/groups/member/'
     headers = {'Authorization' : token}
@@ -21,9 +24,12 @@ def get_org_list(profileID, token):
 
     try: 
         org_list = response.json()
+        print(org_list)
+        if org_list[0]:
+            pass
 
     except Exception:
-        print('Error during fetching groups', response.json())
+        return('Error during fetching groups', response.json()),404
     
     # get org info for each org, and filter orgs that profile is also associated with.
     all_orgs = list(map(lambda x: get_group_info(x['id'], token), org_list))
@@ -31,8 +37,8 @@ def get_org_list(profileID, token):
 
     return json.dumps(filtered_orgs)
 
-# get group info with the auth token and org id.
 def get_group_info(org_id, token):
+    """ Get group info with the auth token and org id. """
     groupUrl = 'https://ci.kbase.us/services/groups/group/' + org_id
     
     headers = {'Authorization' : token}
@@ -45,28 +51,30 @@ def get_group_info(org_id, token):
         
     return org_info
 
-# check if the profile ID is in member/admin/owner of the org
-# retruns True/False
 def filterorgbyprofileuser(org_info, profileID):
+    """ Check if the profile ID is in member/admin/owner of the org.
+        retruns True/False. """
     org_members = list(filter( lambda x: x['name'] == profileID, [org_info['owner']] + org_info['admins'] + org_info['members']))
     if len(org_members) > 0:
         return True
     else:
         return False
 
-"""
 @app.route('/narrative_list/<param_type>/<token>')
-Get list of narratives with auth
-Return an array of narrativeData objects
-    {wsID: string; 
-    name: string; 
-    last_saved: string;
-    users: Array<string>; -- users that native owner shared the narrative with
-    narrative_detail: object;}
-"""
-@app.route('/narrative_list/<param_type>/<token>')
-# get dynamic service URL first
 def get_narrative_list_route(param_type, token):
+    """
+    Get dynamic serivice url first
+    is this it??
+    ---
+    responses:
+          200:
+            description: '[{"wsID": 39031", permission": "a", "name": "Luna pughuahua sampling"}]'
+    tags:
+        - dynamic sercives
+    summary: fetch user profile from userID
+    externalDocs: https://kbase.us/services/ws/docs/Workspace.html#typedefWorkspace.ObjectIdentity
+
+    """
     narrative_service_url_payload = {
         'id': 0,
         'method': 'ServiceWizard.get_service_status',
@@ -87,13 +95,14 @@ def get_narrative_list_route(param_type, token):
         url = resp_json['result'][0]['url']
 
     except Exception:
-        print('Error during fetching dynamic service (NarrativeSericve module) url', response)
+        return('Error during fetching dynamic service (NarrativeSericve module) url', response), 404
+
     # fetch narrative list with the url
     narrative_list = get_narrative_list(url, param_type, token)
     return narrative_list
 
-# Fetch narrative list
 def get_narrative_list(narrative_service_url, param_type, token):
+    """ Fetch narrative list """
     narrative_list_payload = {
         'id': 0,
         'method': 'NarrativeService.list_narratives',
@@ -106,9 +115,9 @@ def get_narrative_list(narrative_service_url, param_type, token):
     try:
         res_json = res.json()
     except Exception:
-        print('Error during fetching narrative list', res)
+        return('Error during fetching narrative list', res), 404
+
     # Filter narratives( work space ) with "narrative_nice_name" and return the list
-    # print(res_json['result'][0]['narratives'])
     narrative_list = []
     WorkspaceIdentityList = []
     for ws in res_json['result'][0]['narratives']:
@@ -123,9 +132,9 @@ def get_narrative_list(narrative_service_url, param_type, token):
     get_narrative_users(WorkspaceIdentityList, narrative_list, token)
     return json.dumps(narrative_list)
 
-# Fetch users for each narrative that owner shared the narrative with.
-# Param: array of user dictionary 
 def get_narrative_users(WorkspaceIdentityList, narrative_list, token):
+    """Fetch users for each narrative that owner shared the narrative with.
+    Param: array of user dictionary."""
 
     narrative_users_payload = {
         'version': '1.1',
@@ -141,11 +150,23 @@ def get_narrative_users(WorkspaceIdentityList, narrative_list, token):
             narrative['users'] = res_permission_json['result'][0]['perms'][index]
 
     except Exception:
-        print('Error during fetching narrative list',  res_permission.json())
+        return('Error during fetching narrative list',  res_permission.json()), 404
 
-# Fetch user profile
 @app.route('/fetchUserProfile/<userID>')
 def get_userPofile(userID):
+    """
+    Fetch user profile
+    It returns user's real name and information.
+    ---
+    tags:
+        - profile
+    summary: fetch user profile from userID
+    externalDocs: https://github.com/kbase/user_profile/blob/master/UserProfile.spec
+    responses: 
+        200:
+            description: https://github.com/kbaseIncubator/ui-backend-for-frontend#response
+             
+    """
     userProfile_payload = {
         'id': 0,
         'method': 'UserProfile.get_user_profile',
@@ -158,24 +179,61 @@ def get_userPofile(userID):
     try:
         response_json = response.json()
         res = response_json['result'][0][0]
+        print(res)
+        if res['profile']:
+            pass
 
     except Exception:
-        print('Error during fetching user profile', res)
-    
+        # Send back empty profile with to avoid frontend crashing.
+        res = {
+            'user': {
+                'username': 'User Not found',
+                'realname': 'User Not found'
+            },
+            'profile':{
+                'userdata': {
+                    'organization': '',
+                    'department': '',
+                    'city': '',
+                    'state': '',
+                    'postalCode': '',
+                    'country': '',
+                    'affiliations': [
+                                {
+                                'title': '',
+                                'organization': '',
+                                'started': '',
+                                'ended': ''
+                                }
+                    ],
+                    'avatarOption': ''
+                },
+                'synced': {
+                    'gravatarHash': ''
+                }
+            }
+        }
+        return json.dumps(res), 404
 
     if res['profile']['userdata'] is None:
-        res['profile']['userdata'] = {
-            'affiliations': [{'title': '', 'organization': '', 'started': '', 'ended': ''}],
-            'city': '',
-            'state': '',
-            'postalCode': '',
-            'country': '',
-            'researchStatement': '',
-            'fundingSource': '',
-            'synced': {'gravatarHash': ''},
-            'gravatarDefault': 'identicon',
-            'avatarOption': ''
+        print({"why aren't you here"})
+        res['profile']= {
+            'userdata': {
+                'affiliations': [{'title': '', 'organization': '', 'started': '', 'ended': ''}],
+                'city': '',
+                'state': '',
+                'postalCode': '',
+                'country': '',
+                'researchStatement': '',
+                'fundingSource': '',
+                'gravatarDefault': 'identicon',
+                'avatarOption': '',
+                'organization': ''
+                },
+            'synced': {
+                'gravatarHash': ''
             }
+        }
 
     else: 
         if 'affiliations' not in res['profile']['userdata']:
@@ -210,7 +268,6 @@ def get_userPofile(userID):
         if 'avatarOption' not in res['profile']['userdata']:
             res['profile']['userdata']['avatarOption'] = ''
     
-    print(res)
     return json.dumps(res)
 
 @app.after_request
