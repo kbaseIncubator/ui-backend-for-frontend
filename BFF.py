@@ -1,10 +1,15 @@
 import os
 import requests
 import json
-from flask import Flask, jsonify
+from flask import Flask, jsonify, render_template, make_response
 from flask_swagger import swagger
 import datetime
 app = Flask(__name__)
+
+conf = dict()
+conf['KBASE_ENDPOINT'] = os.environ.get('KBASE_ENDPOINT')
+assert os.environ.get('KBASE_ENDPOINT', '').strip(), "KBASE_ENDPOINT env var is required."
+
 
 @app.route("/spec")
 def spec():
@@ -15,16 +20,24 @@ def spec():
 
 @app.route('/org_list/<profileID>/<token>')
 def get_org_list(profileID, token):
-    """Return list of orgs that logged in user and profile ID associated with
-    profile ID is the user ID of viewing profile."""
+    """
+    Returns list of orgs that both profile and the logged in users are associated with. 
+    ---
+    responses:
+          200:
+            description: https://github.com/kbaseIncubator/ui-backend-for-frontend#response-2
+    tags: orgs
+    summary: https://github.com/kbaseIncubator/ui-backend-for-frontend#approuteorg_list-profileid--token-
+    externalDocs: https://github.com/kbase/groups
 
-    groupUrl = 'https://ci.kbase.us/services/groups/member/'
+    """
+
+    groupUrl = conf['KBASE_ENDPOINT'] + '/groups/member/'
     headers = {'Authorization' : token}
     response = requests.get( groupUrl, headers=headers)
 
     try: 
         org_list = response.json()
-        print(org_list)
         if org_list[0]:
             pass
 
@@ -39,7 +52,7 @@ def get_org_list(profileID, token):
 
 def get_group_info(org_id, token):
     """ Get group info with the auth token and org id. """
-    groupUrl = 'https://ci.kbase.us/services/groups/group/' + org_id
+    groupUrl = conf['KBASE_ENDPOINT'] + '/groups/group/' + org_id
     
     headers = {'Authorization' : token}
     response = requests.get( groupUrl, headers=headers)
@@ -63,14 +76,15 @@ def filterorgbyprofileuser(org_info, profileID):
 @app.route('/narrative_list/<param_type>/<token>')
 def get_narrative_list_route(param_type, token):
     """
-    Get dynamic serivice url first
-    is this it??
+    Returns list of narratives from one of following parameters: mine, public, shared.
+    Get dynamic serivice url first, then fetch narrative list.
+    Map list with creators.
     ---
     responses:
           200:
-            description: '[{"wsID": 39031", permission": "a", "name": "Luna pughuahua sampling"}]'
+            description: https://github.com/kbaseIncubator/ui-backend-for-frontend#response-1
     tags:
-        - dynamic sercives
+        - narrative
     summary: fetch user profile from userID
     externalDocs: https://kbase.us/services/ws/docs/Workspace.html#typedefWorkspace.ObjectIdentity
 
@@ -88,7 +102,8 @@ def get_narrative_list_route(param_type, token):
     }
     
     headers = {'Authorization' : token}
-    response = requests.post('https://ci.kbase.us/services/service_wizard', data=json.dumps(narrative_service_url_payload), headers=headers)
+    service_wizard_url = conf['KBASE_ENDPOINT'] + '/service_wizard'
+    response = requests.post(service_wizard_url, data=json.dumps(narrative_service_url_payload), headers=headers)
 
     try:
         resp_json = response.json()
@@ -122,6 +137,7 @@ def get_narrative_list(narrative_service_url, param_type, token):
     WorkspaceIdentityList = []
     for ws in res_json['result'][0]['narratives']:
         if 'narrative_nice_name' in ws['ws'][8]:
+            print('add these', ws['ws'][8])
             epoch = datetime.datetime.utcfromtimestamp(0)
             converted_date = datetime.datetime.strptime(ws['ws'][3], '%Y-%m-%dT%H:%M:%S+%f')
             last_saved = (converted_date - epoch).total_seconds()* 1000
@@ -142,15 +158,16 @@ def get_narrative_users(WorkspaceIdentityList, narrative_list, token):
         'params': [{'workspaces': WorkspaceIdentityList}],
     }
     headers = {'Authorization' : token}
-    res_permission = requests.post('https://ci.kbase.us/services/ws', data=json.dumps(narrative_users_payload), headers=headers)
+    ws_url = conf['KBASE_ENDPOINT'] + '/services/ws'
+    res_permission = requests.post(ws_url, data=json.dumps(narrative_users_payload), headers=headers)
     try:
         res_permission_json = res_permission.json()
         
-        for index, narrative in enumerate(narrative_list):
-            narrative['users'] = res_permission_json['result'][0]['perms'][index]
-
     except Exception:
-        return('Error during fetching narrative list',  res_permission.json()), 404
+        return('Error during fetching narrative list',  res_permission, 404)
+
+    for index, narrative in enumerate(narrative_list):
+        narrative['users'] = res_permission_json['result'][0]['perms'][index]
 
 @app.route('/fetchUserProfile/<userID>')
 def get_userPofile(userID):
@@ -173,13 +190,12 @@ def get_userPofile(userID):
         'version': '1.1',
         'params': [[userID]]
     }
-
+    user_profile_rpc_url = conf['KBASE_ENDPOINT'] + '/user_profile/rpc'
     response = requests.post(
-        'https://ci.kbase.us/services/user_profile/rpc', data=json.dumps(userProfile_payload))
+        user_profile_rpc_url, data=json.dumps(userProfile_payload))
     try:
         response_json = response.json()
         res = response_json['result'][0][0]
-        print(res)
         if res['profile']:
             pass
 
@@ -216,7 +232,6 @@ def get_userPofile(userID):
         return json.dumps(res), 404
 
     if res['profile']['userdata'] is None:
-        print({"why aren't you here"})
         res['profile']= {
             'userdata': {
                 'affiliations': [{'title': '', 'organization': '', 'started': '', 'ended': ''}],
