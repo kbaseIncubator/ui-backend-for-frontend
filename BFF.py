@@ -60,7 +60,7 @@ def get_group_info(org_id, token):
         org_info = response.json()
 
     except Exception:
-        print('Error during fetching group info', response.json())
+        return('Error during fetching group info', response)
         
     return org_info
 
@@ -137,7 +137,6 @@ def get_narrative_list(narrative_service_url, param_type, token):
     WorkspaceIdentityList = []
     for ws in res_json['result'][0]['narratives']:
         if 'narrative_nice_name' in ws['ws'][8]:
-            print('add these', ws['ws'][8])
             epoch = datetime.datetime.utcfromtimestamp(0)
             converted_date = datetime.datetime.strptime(ws['ws'][3], '%Y-%m-%dT%H:%M:%S+%f')
             last_saved = (converted_date - epoch).total_seconds()* 1000
