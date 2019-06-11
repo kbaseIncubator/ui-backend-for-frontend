@@ -16,6 +16,7 @@ def spec():
     swag = swagger(app)
     swag['info']['version'] = "1.0"
     swag['info']['title'] = "KBase UI backend for frontend"
+    swag['info']['description'] = 'Initial commit June 2019'
     return jsonify(swag)
 
 @app.route('/org_list/<profileID>/<token>')
@@ -26,10 +27,12 @@ def get_org_list(profileID, token):
     responses:
           200:
             description: https://github.com/kbaseIncubator/ui-backend-for-frontend#response-2
-    tags: orgs
-    summary: https://github.com/kbaseIncubator/ui-backend-for-frontend#approuteorg_list-profileid--token-
+    tags: 
+        - orgs
+        - Groups-service-version-0.1.6
+    summary: https://github.com/kbaseIncubator/ui-backend-for-frontend#approuteorg_list-profileid--token- 
     externalDocs: https://github.com/kbase/groups
-
+    
     """
 
     groupUrl = conf['KBASE_ENDPOINT'] + '/groups/member/'
@@ -85,9 +88,12 @@ def get_narrative_list_route(param_type, token):
             description: https://github.com/kbaseIncubator/ui-backend-for-frontend#response-1
     tags:
         - narrative
+        - service_wizard-module-version-0.4.1  
+        - NarrativeService-module-version-0.2.3
+        - workspace-service-version-0.8.2
     summary: fetch user profile from userID
-    externalDocs: https://kbase.us/services/ws/docs/Workspace.html#typedefWorkspace.ObjectIdentity
-
+    externalDocs: https://kbase.us/services/ws/docs/Workspace.html
+    description: https://github.com/kbaseIncubator/ui-backend-for-frontend#approutenarrative_list-param_type--token-----calling-this-twice-from-frontend 
     """
     narrative_service_url_payload = {
         'id': 0,
@@ -176,6 +182,7 @@ def get_userPofile(userID):
     ---
     tags:
         - profile
+        - userprofile-service-VERSION-0.2.1 (Released 4/1/19)
     summary: fetch user profile from userID
     externalDocs: https://github.com/kbase/user_profile/blob/master/UserProfile.spec
     responses: 

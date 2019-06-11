@@ -2,7 +2,7 @@
 
 Backend for frontend was developed to shift API calls and data wrangling within browser script to server script to aim faster loading, quicker data structure modification to fit UI development needs, and to provide reusable data structures.
 
-@app.route('/spec') returns quick summary of paths and discriptions
+@app.route('/spec') returns quick summary of paths/discriptions/method/versions of services that are used for the route.
 
 Each routing section shall have following sections:
 
