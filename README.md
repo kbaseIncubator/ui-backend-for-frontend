@@ -32,6 +32,10 @@ https://github.com/kbase/user_profile/blob/master/UserProfile.spec
 
 1. POST request to user profile rpc
 
+### Parameters:
+
+- user id (string) in path
+
 ### Data wrangling:
 
 - user profile service does not return keys that does not contain matching value. Add them on so that browser script does not require to check if it is 'undefined".
@@ -106,7 +110,7 @@ https://github.com/kbase/user_profile/blob/master/UserProfile.spec
 }
 ```
 
-## @app.route('/narrative_list/< param_type >/< token >' ) - calling this twice from frontend
+## @app.route('/narrative_list/< param_type >' ) - calling this twice from frontend
 
 ### Synopsis:
 
@@ -123,6 +127,17 @@ With one of following parameters: mine, shared, and public, it returns narrative
 2. POST request to narrative service to get list of narratives
 3. POST request to workspace service to get users have access to each narratives.
 4. REPEAT step 1 - step 3 for each users (Public & Shared/Mine & Shared)
+
+### Parameters:
+
+- search parameter(string) in path
+- token (string) in headers
+
+```json
+headers: {
+  Authorization: KBase session cookie in string
+}
+```
 
 ### Data wrangling:
 
@@ -158,7 +173,7 @@ Array of narrative data object
     },
 ```
 
-## @app.route('/org_list/< profileID >/< token >')
+## @app.route('/org_list/< profileID >')
 
 ### Synopsis:
 Returns list of the orgs that both logged in user and profile user are in.
@@ -168,6 +183,17 @@ Returns list of the orgs that both logged in user and profile user are in.
 1.  GET request to group service to fetch organization that user is associated
 2.  GET request to group service to to get detailed organization information. Mainly to get list of admin, owner, and members
 3.  REPEAT step 2 as many times as the number of orgs step 1 returned.
+
+### Parameters:
+
+- user id (string) in path
+- token (string) in headers
+
+```json
+headers: {
+  Authorization: KBase session cookie in string
+}
+```
 
 ### Data wrangling
 
