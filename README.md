@@ -133,7 +133,7 @@ With one of following parameters: mine, shared, and public, it returns narrative
 - search parameter(string) in path
 - token (string) in headers
 
-```json
+```
 headers: {
   Authorization: KBase session cookie in string
 }
@@ -189,9 +189,9 @@ Returns list of the orgs that both logged in user and profile user are in.
 - user id (string) in path
 - token (string) in headers
 
-```json
+```typescript
 headers: {
-  Authorization: KBase session cookie in string
+  Authorization: "KBase session cookie in string"
 }
 ```
 
