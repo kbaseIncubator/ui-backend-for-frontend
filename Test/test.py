@@ -13,7 +13,7 @@ class WidgetTestCase(unittest.TestCase):
         with open(json_path) as json_file:
             cls.data = json.load(json_file)
 
-    def test_userProfile(self): 
+    def test_userProfile(self):
        
         self.assertEqual(get_userProfile('amarukawa'), json.dumps(self.data))
 
