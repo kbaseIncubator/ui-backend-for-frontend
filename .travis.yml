@@ -4,7 +4,7 @@ python:
 # command to install dependencies
 install:
   - pip install -r requirements.txt
-  - travis_wait 20 mvn install
+  - travis_wait 15 mvn install
 # command to run tests
 script:
   - python -m unittest discover test
