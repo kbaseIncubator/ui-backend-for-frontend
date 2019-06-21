@@ -11,7 +11,7 @@ import json
 from flask import Flask, jsonify, request
 from flask_swagger import swagger
 import datetime
-from . import exceptions
+import exceptions 
 app = Flask(__name__)
 
 conf = dict()
