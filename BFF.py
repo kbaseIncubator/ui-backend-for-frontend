@@ -244,7 +244,7 @@ def get_narrative_users(WorkspaceIdentityList, narrative_list, auth_token):
 
 
 @app.route('/fetchUserProfile/<userID>', methods=['GET'])
-def get_userPofile(userID):
+def get_userProfile(userID):
     """
     Fetch user profile
     It returns user's real name and information.
@@ -270,7 +270,6 @@ def get_userPofile(userID):
     user_profile_rpc_url = conf['KBASE_ENDPOINT'] + '/user_profile/rpc'
     response = requests.post(
         user_profile_rpc_url, data=json.dumps(userProfile_payload))
-
 
     try:
         if not response.ok:

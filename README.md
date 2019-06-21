@@ -2,7 +2,23 @@
 
 Backend for frontend was developed to shift API calls and data wrangling within browser script to server script to aim faster loading, quicker data structure modification to fit UI development needs, and to provide reusable data structures.
 
+### Installation
+
+Clone the repo on your local machine and install dependency.
+
+`$ pip install -r requirements.txt`
+
+### Locally build Docker countainer and run image
+
+Go to the project root folder and run
+
+`$ sh scripts/start_docker_server.sh`
+
+### Document
+
 @app.route('/spec') returns quick summary of paths/discriptions/method/versions of services that are used for the route.
+
+### Routs
 
 Each routing section shall have following sections:
 
