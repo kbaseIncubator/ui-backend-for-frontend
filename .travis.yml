@@ -3,7 +3,7 @@ python:
   - "3.6"
 # command to install dependencies
 install:
-  - travis_wait 30 mvn pip install -r requirements.txt
+  - pip install -r requirements.txt
 # command to run tests
 script:
-  - python -m unittest discover test
+  - travis_wait 30 mvn python -m unittest discover test
