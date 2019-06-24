@@ -1,0 +1,45 @@
+{
+	"user": {
+		"username": "soratest",
+		"realname": "Sora Bear"
+	},
+	"profile": {
+		"metadata": {
+			"createdBy": "userprofile_ui_service",
+			"created": "2019-06-24T21:32:45.552Z"
+		},
+		"preferences": {},
+		"userdata": {
+			"organization": "Lawrence Berkeley National Laboratory (LBNL)",
+			"department": "Kbase",
+			"city": "San Francisco",
+			"state": "California",
+			"postalCode": "94122",
+			"country": "United States",
+			"fundingSource": "Other",
+			"avatarOption": "gravatar",
+			"gravatarDefault": "monsterid",
+			"researchStatement": "This profile is made for testing. ",
+			"jobTitle": "Other",
+			"jobTitleOther": "Dev",
+			"researchInterests": [
+				"Genome Annotation",
+				"Genome Assembly",
+				"Microbial Communities",
+				"Comparative Genomics",
+				"Expression"
+			],
+			"affiliations": [
+				{
+					"title": "",
+					"organization": "",
+					"started": "",
+					"ended": ""
+				}
+			]
+		},
+		"synced": {
+			"gravatarHash": "7c4edb6cbe9e46cdf4f57314caecf69f"
+		}
+	}
+}
