@@ -6,7 +6,7 @@ if [ "z${1}" == "ztest" ] ; then
 elif [ "z${1}" == "zreport" ] ; then
   echo "Report"
   [ -e work ] || mkdir work
-  echo "{'bogus':'report'}" > /kb/module/work/compile_report.json
+  echo '{"bogus":"report"}' > /kb/module/work/compile_report.json
 elif [ "z${1}" == "zbash" ] ; then
   bash
 else
