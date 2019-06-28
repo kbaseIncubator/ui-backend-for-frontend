@@ -13,3 +13,6 @@ module-version:
 owners:
     [akiyo,scanon]
 
+service-config:
+    dynamic-service: true
+
