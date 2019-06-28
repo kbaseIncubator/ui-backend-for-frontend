@@ -5,6 +5,7 @@ if [ "z${1}" == "ztest" ] ; then
   exit
 elif [ "z${1}" == "zreport" ] ; then
   echo "Report"
+  [ -e work ] || mkdir work
   echo "{}" > ./work/compile_report.json
   exit
 else
