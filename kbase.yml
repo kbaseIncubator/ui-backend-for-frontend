@@ -2,7 +2,7 @@ module-name:
     kb_ui_bff
 
 module-description:
-    A KBase module
+    backend-for-frontend for ui-profile plugin
 
 service-language:
     python
