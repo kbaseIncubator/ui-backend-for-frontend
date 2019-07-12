@@ -1,0 +1,14 @@
+module-name:
+    kb_ui_bff
+
+module-description:
+    A KBase module
+
+service-language:
+    python
+
+module-version:
+    1.0.0
+
+owners:
+    [amarukawa]
