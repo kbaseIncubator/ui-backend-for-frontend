@@ -15,4 +15,3 @@ owners:
 
 service-config:
     dynamic-service: true
-
