@@ -35,5 +35,5 @@ COPY . /app
 # Make port 5000 available to the world outside this container
 EXPOSE 5000
 
-ENTRYPOINT [ "/usr/local/bin/dockerize" ]
-CMD [ "sh", "-x", "scripts/start_server.sh"]
+ENTRYPOINT [ "./entrypoint.sh" ]
+# CMD [ "sh", "-x", "scripts/start_server.sh"]

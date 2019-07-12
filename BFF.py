@@ -15,8 +15,8 @@ import exceptions
 app = Flask(__name__)
 
 conf = dict()
-# conf['KBASE_ENDPOINT'] = os.environ.get('KBASE_ENDPOINT')
-conf['KBASE_ENDPOINT'] = 'https://kbase.us/services'
+# conf['KBASE_ENDPOINT'] = 'https://kbase.us/services'
+conf['KBASE_ENDPOINT'] = os.environ.get('KBASE_ENDPOINT', 'https://kbase.us/services')
 # assert os.environ.get('KBASE_ENDPOINT', '').strip(
 # ), "KBASE_ENDPOINT env var is required."
 
