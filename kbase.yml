@@ -1,8 +1,8 @@
 module-name:
-    bff
+    userprofileuibff
 
 module-description:
-    Backend-for-frontend
+    User Profile UI Backend-for-frontend
 
 service-language:
     python
