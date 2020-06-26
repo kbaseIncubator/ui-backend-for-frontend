@@ -5,7 +5,7 @@ set -e
 docker build . -t bff
 
 # Export environment variables
-export KBASE_ENDPOINT=https://kbase.us/services
+export KBASE_ENDPOINT=${KBASE_ENDPOINT:-https://kbase.us/services}
 export FLASK_ENV=development
 
 # Create/start a new docker container and run it on port 5000. 
