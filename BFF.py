@@ -11,12 +11,13 @@ import json
 from flask import Flask, jsonify, request
 from flask_swagger import swagger
 import datetime
-import exceptions 
+import exceptions
 app = Flask(__name__)
 
 conf = dict()
 # conf['KBASE_ENDPOINT'] = 'https://kbase.us/services'
-conf['KBASE_ENDPOINT'] = os.environ.get('KBASE_ENDPOINT', 'https://kbase.us/services')
+conf['KBASE_ENDPOINT'] = os.environ.get(
+    'KBASE_ENDPOINT', 'https://kbase.us/services')
 # assert os.environ.get('KBASE_ENDPOINT', '').strip(
 # ), "KBASE_ENDPOINT env var is required."
 
@@ -34,18 +35,22 @@ def spec():
 def network_error(error):
     return 'Internal Server Error, 500', 500
 
+
 @app.errorhandler(exceptions.AuthError)
 def auth_error(error):
     return 'Authentication Error, 401', 401
+
 
 @app.errorhandler(400)
 def bad_request(error):
     return 'Bad request, 400', 400
 
+
 @app.errorhandler(404)
 @app.errorhandler(exceptions.NotFound)
 def not_found(error):
     return 'Not found, 404', 404
+
 
 @app.errorhandler(Exception)
 def handle_error(error):
@@ -54,28 +59,33 @@ def handle_error(error):
         'error_class': str(error.__class__)
     }), 500
 
+
 @app.route("/brew_coffee")
 def imateapot():
     return "I'm a teapot", 418
 
-# Check which error 
+# Check which error
+
+
 def which_error(response):
     if response.status_code == 401:
         raise exceptions.AuthError()
     elif response.status_code == 500:
         raise Exception(response.text)
     elif response.status_code == 404:
-            # Not in the group
+        # Not in the group
         raise exceptions.NotFound()
+
 
 @app.route('/org_list/<profileID>')
 def get_org_list(profileID):
     """
-    Returns list of orgs that both profile and the logged in users are associated with. 
+    Returns list of orgs that both profile and the logged in users 
+    are associated with. 
     ---
     responses:
         '401':
-            description: Authrized. Invalid token or token missing.
+            description: Authorized. Invalid token or token missing.
         '200':
             description: https://github.com/kbaseIncubator/ui-backend-for-frontend#response-2
     tags: 
@@ -89,7 +99,7 @@ def get_org_list(profileID):
         # check if auth token is there
         auth_token = request.headers['Authorization']
 
-    except:
+    except Exception:
         raise exceptions.AuthError
 
     headers = {'Authorization': auth_token}
@@ -100,9 +110,12 @@ def get_org_list(profileID):
     else:
         org_list = response.json()
 
-    # get org info for each org, and filter orgs that profile is also associated with.
-    all_orgs = list(map(lambda x: get_group_info(x['id'], auth_token), org_list))
-    filtered_orgs= list(filter(lambda y: filterorgbyprofileuser(y, profileID), all_orgs))
+    # get org info for each org, and filter orgs that profile is
+    # also associated with.
+    all_orgs = list(
+        map(lambda x: get_group_info(x['id'], auth_token), org_list))
+    filtered_orgs = list(
+        filter(lambda y: filterorgbyprofileuser(y, profileID), all_orgs))
 
     return json.dumps(filtered_orgs)
 
@@ -123,7 +136,9 @@ def filterorgbyprofileuser(org_info, profileID):
     """ Check if the profile ID is in member/admin/owner of the org.
         retruns True/False. """
     org_members = list(filter(lambda x: x['name'] == profileID, [
-                       org_info['owner']] + org_info['admins'] + org_info['members']))
+                       org_info['owner']] +
+        org_info['admins'] +
+        org_info['members']))
     if len(org_members) > 0:
         return True
     else:
@@ -133,7 +148,8 @@ def filterorgbyprofileuser(org_info, profileID):
 @app.route('/narrative_list/<param_type>', methods=['GET'])
 def get_narrative_list_route(param_type):
     """
-    Returns list of narratives from one of following parameters: mine, public, shared.
+    Returns list of narratives from one of following parameters: mine, public, 
+    shared.
     Get dynamic serivice url first, then fetch narrative list.
     Map list with creators.
     ---
@@ -152,8 +168,8 @@ def get_narrative_list_route(param_type):
     try:
         # check if auth token is there
         auth_token = request.headers['Authorization']
-  
-    except:
+
+    except Exception:
         raise exceptions.AuthError
     # Get service wizerd url first.
     narrative_service_url_payload = {
@@ -176,7 +192,7 @@ def get_narrative_list_route(param_type):
     if not response.ok:
         which_error(response)
 
-    else: 
+    else:
         resp_json = response.json()
         url = resp_json['result'][0]['url']
 
@@ -201,8 +217,8 @@ def get_narrative_list(narrative_service_url, param_type, auth_token):
     else:
         res_json = response.json()
 
-
-    # Filter narratives( work space ) with "narrative_nice_name" and return the list
+    # Filter narratives( work space ) with "narrative_nice_name" and return
+    # the list
     narrative_list = []
     WorkspaceIdentityList = []
     for ws in res_json['result'][0]['narratives']:
@@ -211,11 +227,19 @@ def get_narrative_list(narrative_service_url, param_type, auth_token):
             converted_date = datetime.datetime.strptime(
                 ws['ws'][3], '%Y-%m-%dT%H:%M:%S+%f')
             last_saved = (converted_date - epoch).total_seconds() * 1000
-            narrative_list.append({'wsID': ws['ws'][0], 'permission': ws['ws'][5], 'name': ws['ws'][8]
-                                   ['narrative_nice_name'], 'last_saved': last_saved, 'users': {}, 'narrative_detail': ws['nar'][10]})
+            narrative_list.append({
+                'wsID': ws['ws'][0],
+                'permission': ws['ws'][5],
+                'name': ws['ws'][8]['narrative_nice_name'],
+                'owner': ws['ws'][2],
+                'last_saved': last_saved,
+                'users': {},
+                'narrative_detail': ws['nar'][10]
+            })
             WorkspaceIdentityList.append({'id': ws['ws'][0]})
 
-    # use get_narrative_users function to get users that narratives are shared with.
+    # use get_narrative_users function to get users that narratives are
+    #  shared with.
     # get_narrative_users(WorkspaceIdentityList, narrative_list, auth_token)
     return narrative_list
 
@@ -258,7 +282,8 @@ def get_userProfile(userID):
         200:
             description: https://github.com/kbaseIncubator/ui-backend-for-frontend#response
         404:
-            description: User not found.  BFF returns empty profile and with user name "User not found". 
+            description: User not found.  BFF returns empty profile and with 
+            user name "User not found". 
     """
 
     userProfile_payload = {
@@ -281,7 +306,6 @@ def get_userProfile(userID):
         if 'profile' not in res:
             raise exceptions.NotFound
 
- 
     except Exception:
         pass
 
@@ -321,7 +345,8 @@ def get_userProfile(userID):
     if res['profile']['userdata'] is None:
         res['profile'] = {
             'userdata': {
-                'affiliations': [{'title': '', 'organization': '', 'started': '', 'ended': ''}],
+                'affiliations': [{'title': '', 'organization': '',
+                                  'started': '', 'ended': ''}],
                 'city': '',
                 'state': '',
                 'postalCode': '',
