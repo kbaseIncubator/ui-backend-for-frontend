@@ -2,11 +2,28 @@
 
 Backend for frontend was developed to shift API calls and data wrangling within browser script to server script to aim faster loading, quicker data structure modification to fit UI development needs, and to provide reusable data structures.
 
-### Installation
+## Installation
 
-Clone the repo on your local machine and install dependency.
+- It is best that you [create a virtual environment][creating-venv].
+- Clone the repo on your local machine and install dependencies.
 
-`$ pip install -r requirements.txt`
+```bash
+$ pip install -r requirements.txt
+```
+
+- You may then run an instance of the server with the following command:
+
+```bash
+$ FLASK_APP=BFF:app FLASK_ENV=development python -m flask run --debugger --port $PORT
+```
+
+- The unit tests may then be run with
+
+```bash
+python -m unittest discover -v Test
+```
+
+[creating-venv]: https://docs.python.org/3/library/venv.html#creating-virtual-environments
 
 ### Locally build Docker countainer and run image
 
@@ -14,13 +31,14 @@ Go to the project root folder and run
 
 `$ sh scripts/start_docker_server.sh`
 
+
 ### Document
 
 @app.route('/spec') returns quick summary of paths/discriptions/method/versions of services that are used for the route.
 
-### Routs
+## 🍔 SO what's in it? 🍱
 
-Each routing section shall have following sections:
+Each route shall have following information:
 
 - @app.route
 - Synopsis
@@ -29,20 +47,18 @@ Each routing section shall have following sections:
 - API calls
   - method and service
 - Data wrangling
-  - https://en.wikipedia.org/wikiData_wrangling
+  - https://en.wikipedia.org/wiki/Data_wrangling
 - Response
   - shape of response
 
-## 🍔 SO what's in it? 🍱
-
-## @app.route('/fetchUserProfile/< userID >')
+## app.route('/fetchUserProfile/< userID >')
 
 ### Synopsis:
-With userID of the profile, it returns the full information (which is documented as "UnspecifiedObject" in UserProfile.spec).
+With userID of the profile, it returns the full information (which is documented as "UnspecifiedObject" in [UserProfile.spec][UserProfile.spec]).
 
 ### Reference docs:
 
-https://github.com/kbase/user_profile/blob/master/UserProfile.spec
+[UserProfile.spec][UserProfile.spec]
 
 ### API calls:
 
@@ -57,6 +73,9 @@ https://github.com/kbase/user_profile/blob/master/UserProfile.spec
 - user profile service does not return keys that does not contain matching value. Add them on so that browser script does not require to check if it is 'undefined".
 
 ### Response:
+
+<details>
+<summary>Sample JSON response</summary>
 
 ```json
 {
@@ -125,6 +144,92 @@ https://github.com/kbase/user_profile/blob/master/UserProfile.spec
   ]
 }
 ```
+</details>
+
+## @app.route('/fetchUserProfiles')
+
+### Synopsis:
+When this route recieves a POST request with a JSON body from a JS object like
+```js
+{ users: [...userIDs] }
+```
+this route will return an array of the profiles for each user, and `null` if a
+userID is not found.
+
+### Reference docs:
+
+[UserProfile.spec][UserProfile.spec]
+
+[UserProfile.spec]: https://github.com/kbase/user_profile/blob/master/UserProfile.spec
+
+### API calls:
+
+1. This route makes a POST request to user profile rpc
+
+### Parameters:
+
+- An `application/json` body in a POST request with an object like
+```js
+{ users: [...userIDs] }
+```
+
+### Data wrangling:
+
+- There is no data wrangling for this route.
+
+### Response:
+
+<details>
+<summary>Sample JSON response</summary>
+
+```json
+{
+  "version": "1.1",
+  "result": [
+    [
+      {
+        "user": {
+          "username": "soratest",
+          "realname": "Sora Bear"
+        },
+        "profile": {
+          "metadata": {
+            "createdBy": "userprofile_ui_service",
+            "created": "2019-06-24T21:32:45.552Z"
+          },
+          "preferences": {},
+          "userdata": {
+            "organization": "Lawrence Berkeley National Laboratory (LBNL)",
+            "department": "Kbase",
+            "city": "San Francisco",
+            "state": "California",
+            "postalCode": "94122",
+            "country": "United States",
+            "fundingSource": "Other",
+            "avatarOption": "gravatar",
+            "gravatarDefault": "monsterid",
+            "researchStatement": "This profile is made for testing. ",
+            "jobTitle": "Other",
+            "jobTitleOther": "Dev",
+            "researchInterests": [
+              "Genome Annotation",
+              "Genome Assembly",
+              "Microbial Communities",
+              "Comparative Genomics",
+              "Expression"
+            ]
+          },
+          "synced": {
+            "gravatarHash": "7c4edb6cbe9e46cdf4f57314caecf69f"
+          }
+        }
+      },
+      null
+    ]
+  ]
+}
+```
+</details>
 
 ## @app.route('/narrative_list/< param_type >' ) - calling this twice from frontend
 
@@ -164,6 +269,9 @@ headers: {
 
 Array of narrative data object
 
+<details>
+<summary>Sample JSON response</summary>
+
 ```json
 [
   {
@@ -188,6 +296,7 @@ Array of narrative data object
       }
     },
 ```
+</details>
 
 ## @app.route('/org_list/< profileID >')
 

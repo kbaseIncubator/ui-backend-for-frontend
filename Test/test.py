@@ -1,9 +1,11 @@
 import unittest
-from BFF import (get_userProfile, get_narrative_list_route)
+from BFF import (app, get_userProfile, get_narrative_list_route)
 import json
 import os
 
-
+def test_client():
+    app.config['TESTING'] = True
+    return app.test_client()
 
 class WidgetTestCase(unittest.TestCase):
     @classmethod
@@ -14,8 +16,20 @@ class WidgetTestCase(unittest.TestCase):
             cls.data = json.load(json_file)
 
     def test_userProfile(self):
-       
+
         self.assertEqual(get_userProfile('soratest'), json.dumps(self.data))
+
+    def test_fetchUserProfiles(self):
+        client = test_client()
+        response = client.post('/fetchUserProfiles', json=dict(
+            users=['soratest', 'not-a-real-user'],
+        ), follow_redirects=True)
+        assert response.status_code == 200
+
+    def test_teapot(self):
+        client = test_client()
+        response = client.get('/brew_coffee')
+        assert response.status_code == 418
 
 
 if __name__ == '__main__':
