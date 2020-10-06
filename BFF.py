@@ -9,10 +9,12 @@ import os
 import requests
 import json
 from flask import Flask, jsonify, request
+from flask_cors import CORS
 from flask_swagger import swagger
 import datetime
 import exceptions
 app = Flask(__name__)
+CORS(app)
 
 conf = dict()
 # conf['KBASE_ENDPOINT'] = 'https://kbase.us/services'
@@ -80,18 +82,18 @@ def which_error(response):
 @app.route('/org_list/<profileID>')
 def get_org_list(profileID):
     """
-    Returns list of orgs that both profile and the logged in users 
-    are associated with. 
+    Returns list of orgs that both profile and the logged in users
+    are associated with.
     ---
     responses:
         '401':
             description: Authorized. Invalid token or token missing.
         '200':
             description: https://github.com/kbaseIncubator/ui-backend-for-frontend#response-2
-    tags: 
+    tags:
         - orgs
         - Groups-service-version-0.1.6
-    summary: https://github.com/kbaseIncubator/ui-backend-for-frontend#approuteorg_list-profileid--token- 
+    summary: https://github.com/kbaseIncubator/ui-backend-for-frontend#approuteorg_list-profileid--token-
     externalDocs: https://github.com/kbase/groups
 
     """
@@ -148,7 +150,7 @@ def filterorgbyprofileuser(org_info, profileID):
 @app.route('/narrative_list/<param_type>', methods=['GET'])
 def get_narrative_list_route(param_type):
     """
-    Returns list of narratives from one of following parameters: mine, public, 
+    Returns list of narratives from one of following parameters: mine, public,
     shared.
     Get dynamic serivice url first, then fetch narrative list.
     Map list with creators.
@@ -158,12 +160,12 @@ def get_narrative_list_route(param_type):
             description: https://github.com/kbaseIncubator/ui-backend-for-frontend#response-1
     tags:
         - narrative
-        - service_wizard-module-version-0.4.1  
+        - service_wizard-module-version-0.4.1
         - NarrativeService-module-version-0.2.3
         - workspace-service-version-0.8.2
     summary: fetch user profile from userID
     externalDocs: https://kbase.us/services/ws/docs/Workspace.html
-    description: https://github.com/kbaseIncubator/ui-backend-for-frontend#approutenarrative_list-param_type--token-----calling-this-twice-from-frontend 
+    description: https://github.com/kbaseIncubator/ui-backend-for-frontend#approutenarrative_list-param_type--token-----calling-this-twice-from-frontend
     """
     try:
         # check if auth token is there
@@ -267,6 +269,22 @@ def get_narrative_users(WorkspaceIdentityList, narrative_list, auth_token):
         narrative['users'] = response_json['result'][0]['perms'][index]
 
 
+@app.route('/fetchUserProfiles', methods=['POST'])
+def get_userProfiles():
+    body = request.get_json()
+    userIDs = body.get("users", [])
+    userProfile_payload = {
+        'id': 0,
+        'method': 'UserProfile.get_user_profile',
+        'version': '1.1',
+        'params': [userIDs]
+    }
+    user_profile_rpc_url = conf['KBASE_ENDPOINT'] + '/user_profile/rpc'
+    response = requests.post(
+        user_profile_rpc_url, data=json.dumps(userProfile_payload)
+    )
+    return json.dumps(response.json()), 200
+
 @app.route('/fetchUserProfile/<userID>', methods=['GET'])
 def get_userProfile(userID):
     """
@@ -278,12 +296,12 @@ def get_userProfile(userID):
         - userprofile-service-VERSION-0.2.1 (Released 4/1/19)
     summary: fetch user profile from userID
     externalDocs: https://github.com/kbase/user_profile/blob/master/UserProfile.spec
-    responses: 
+    responses:
         200:
             description: https://github.com/kbaseIncubator/ui-backend-for-frontend#response
         404:
-            description: User not found.  BFF returns empty profile and with 
-            user name "User not found". 
+            description: User not found.  BFF returns empty profile and with
+            user name "User not found".
     """
 
     userProfile_payload = {
